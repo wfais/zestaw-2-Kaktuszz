@@ -23,7 +23,10 @@ def selekcja(text: str):
     # Przykład:
     #  selekcja("Ala ma 3 koty i 2 psy oraz żółw")
     #     -> ["koty", "oraz", "żółw"]
-    pass
+
+    wszystkie_slowa = WORD_RE.findall(text)
+
+    return [slowo.lower() for slowo in wszystkie_slowa if len(slowo) > 3]
 
 
 def ramka(text: str, width: int = 80) -> str:
@@ -38,7 +41,15 @@ def ramka(text: str, width: int = 80) -> str:
     #
     # Przykład:
     #   ramka("Kot", width=10)  ->  "[  Kot   ]"   (łącznie 10 znaków)
-    pass
+
+    content_width = width - 2
+    ellipsis = "…"
+    if len(text) > content_width:
+        text = text[:content_width - 1] + ellipsis
+
+    centered_text = text.center(content_width)
+
+    return f"[{centered_text}]"
 
 
 def main():
@@ -63,24 +74,31 @@ def main():
         #  - wydrukuj print(..., end="", flush=True), by nadpisywać bieżącą linię w konsoli
         #
         # Przykład:
-        #   title = data.get("title") or ""
-        #   line = "\r" + ramka(title, 80)
-        #   print(line, end="", flush=True)
+        title = data.get("title") or ""
+        line = "\r" + ramka(title, 80)
+        print(line, end="", flush=True)
 
         # Pobierz 'extract' (klucz "extract"; jeśli brak, użyj ""), przepuść przez selekcja()
+        extract = data.get("extract") or ""
+        lista_slow = selekcja(extract)
         #  - wynikowa lista słów (>=4) powinna zostać doliczona do licznika:
-        #       cnt.update(lista_slow)
+        cnt.update(lista_slow)
         #  - dolicz też do licznik_slow długość tej listy
+        licznik_slow += len(lista_slow)
         #  - zwiększ licznik 'pobrane' (udało się przetworzyć jedną próbkę)
+        pobrane += 1
         #  - opcjonalnie mała przerwa: time.sleep(0.05)
+        time.sleep(0.05)
 
 
-    print(f"Pobrano: {pobrane}")
-    print(f"#Słowa:  {licznik_slow}")
-    print(f"Unikalne:  {len(cnt)}\n")
+    print(f"Pobrano wpisów: {pobrane}")
+    print(f"Słów (≥4) łącznie:  {licznik_slow}")
+    print(f"Unikalnych (≥4):  {len(cnt)}\n")
 
-    print("Najczęstsze 15 słów:")
+    print("Top 15 słów (≥4):")
     # tu wypisz w pętli, korzystając np. z most_common(15)
-
+    for slowo, ilosc in cnt.most_common(15):
+        print(f"  {slowo} \t {ilosc}")
+        
 if __name__ == "__main__":
     main()
